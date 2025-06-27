@@ -1,61 +1,53 @@
-🔐 Image Encryption & Decryption using Python
+from PIL import Image
+import numpy as np
 
-This Python script provides a simple method to **encrypt and decrypt images** using pixel-level transformation. 
-The encryption technique shifts pixel values by a fixed key and wraps them using modulo 256 logic, ensuring image data remains valid.
+# Set the encryption/decryption key
+KEY = 50
 
-📌 Features
+# Encrypt image function
+def encrypt_image():
+    image_path = input("Enter the path of the image to encrypt: ")
+    output_path = input("Enter the path where encrypted image should be saved: ")
 
-* Encrypts any image by shifting pixel values
-* Decrypts the encrypted image using the same key
-* Works with common image formats like PNG, JPG, BMP
-* Uses `PIL` (Pillow) and `NumPy` for efficient image processing
-* Handles overflow and underflow using `int16` casting
-* CLI-based interaction (simple input prompts)
+    try:
+        image = Image.open(image_path)
+        image_array = np.array(image).astype(np.int16)  # Convert to larger type to prevent overflow
 
-🔧 Requirements
+        # Encrypt
+        encrypted_array = (image_array + KEY) % 256
+        encrypted_image = Image.fromarray(encrypted_array.astype('uint8'))  # Convert back to uint8
 
-* Python 3.x
-* Pillow
-* NumPy
+        encrypted_image.save(output_path)
+        print("✅ Image encrypted and saved to:", output_path)
+    except Exception as e:
+        print("❌ Error:", e)
 
-Install dependencies using:
+# Decrypt image function
+def decrypt_image():
+    encrypted_path = input("Enter the path of the encrypted image: ")
+    output_path = input("Enter the path where decrypted image should be saved: ")
 
-bash
-pip install pillow numpy
+    try:
+        encrypted_image = Image.open(encrypted_path)
+        encrypted_array = np.array(encrypted_image).astype(np.int16)  # Prevent underflow
 
+        # Decrypt
+        decrypted_array = (encrypted_array - KEY) % 256
+        decrypted_image = Image.fromarray(decrypted_array.astype('uint8'))
 
-🚀 How to Use
+        decrypted_image.save(output_path)
+        print("✅ Image decrypted and saved to:", output_path)
+    except Exception as e:
+        print("❌ Error:", e)
 
-1. Run the Script:
+# Main menu
+if __name__ == "__main__":
+    print("Image Encryption/Decryption")
+    choice = input("Type 'e' to encrypt or 'd' to decrypt: ").lower()
 
-bash
-python image_encrypt_decrypt.py
-
-
-2. Choose Mode:
-
-* Type `'e'` to encrypt
-* Type `'d'` to decrypt
-
-3. Follow Prompts:
-
-Enter image paths and output file paths as asked
-
-🔒 Encryption Logic
-
-Encrypt:(pixel + KEY) % 256`
-Decrypt:(pixel - KEY) % 256`
-
-> The key value is fixed at `50`. For secure applications, use dynamic or cryptographic keys.
-
-📁 Sample Output
-
-* Encrypted image looks visually distorted (unreadable)
-* Decrypted image restores original content
-
-
- 📌 License
-
-MIT License
-
-
+    if choice == 'e':
+        encrypt_image()
+    elif choice == 'd':
+        decrypt_image()
+    else:
+        print("Invalid choice. Please type 'e' or 'd'.")
